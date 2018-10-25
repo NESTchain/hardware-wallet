@@ -3,8 +3,8 @@ MCU: STM32F103C8T6
 RAM: 20K
 FLASH: 64K
 
-SE: FMCOS SE;
-CC: EAL5+;
+SE: FMCOS SE
+CC: EAL5+\n\r
 SUPPORT
 1, SPI interface
 2, 128 bits true random number generator
