@@ -4,7 +4,7 @@ RAM: 20K
 FLASH: 64K
 
 SE: FMCOS SE
-CC: EAL5+\n\r
+CC: EAL5+
 SUPPORT
 1, SPI interface
 2, 128 bits true random number generator
