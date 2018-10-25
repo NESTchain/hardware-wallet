@@ -13,3 +13,4 @@ SUPPORT
 5, ECDSA verify  
 6, import SECP256K1 private key  
 7, import SECP256K1 public key  
+8, export SECP256K1 public key  
