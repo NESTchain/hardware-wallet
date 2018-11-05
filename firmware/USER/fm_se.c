@@ -254,7 +254,7 @@ unsigned char fm_se_random_128bits(unsigned char* p_random)
 	if(!(Frame[16]==0x90&&Frame[17]==0x00)) return 0;
 	
 	for(i=0; i<16; i++){
-		*(p_random+i) = Frame[i+2];
+		*(p_random+i) = Frame[i];
 	}
 	
 	return 1;
