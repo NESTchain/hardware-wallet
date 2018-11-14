@@ -1,9 +1,9 @@
 --cpu Cortex-M3
 "..\output\main.o"
 "..\output\system_stm32f10x.o"
-"..\output\system.o"
 "..\output\delay.o"
 "..\output\fm_se.o"
+"..\output\usart1.o"
 "..\output\misc.o"
 "..\output\stm32f10x_gpio.o"
 "..\output\stm32f10x_rcc.o"
@@ -29,7 +29,7 @@
 "..\output\stm32f10x_tim.o"
 "..\output\startup_stm32f10x_hd.o"
 "..\output\core_cm3.o"
---library_type=microlib --strict --scatter "..\OUTPUT\PINO_STM32.sct"
+--library_type=microlib --strict --scatter "..\OUTPUT\miuWallet.sct"
 --summary_stderr --info summarysizes --map --xref --callgraph --symbols
 --info sizes --info totals --info unused --info veneers
---list "..\LISTING\PINO_STM32.map" -o ..\OUTPUT\PINO_STM32.axf
+--list "..\LISTING\miuWallet.map" -o ..\OUTPUT\miuWallet.axf

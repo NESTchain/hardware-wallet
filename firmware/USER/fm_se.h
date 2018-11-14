@@ -16,5 +16,6 @@ unsigned char fm_se_ecdsa_sign(unsigned char* p_sha256, unsigned char* p_signatu
 unsigned char fm_se_ecdsa_verify(unsigned char* p_signature, unsigned char* p_sha256);
 unsigned char fm_se_ecc_import_private_key(unsigned char* p_private_key);
 unsigned char fm_se_ecc_import_public_key(unsigned char* p_public_key);
+unsigned char fm_se_sha256(unsigned int str_len, unsigned char* str, unsigned char* p_sha256);
 
 #endif

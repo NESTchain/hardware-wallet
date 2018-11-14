@@ -28,6 +28,7 @@
 ..\output\main.o: ..\LIB\inc\stm32f10x_usart.h
 ..\output\main.o: ..\LIB\inc\stm32f10x_wwdg.h
 ..\output\main.o: ..\LIB\inc\misc.h
-..\output\main.o: ..\USER\system.h
+..\output\main.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+..\output\main.o: ..\USER\usart1.h
 ..\output\main.o: ..\USER\fm_se.h
 ..\output\main.o: ..\USER\delay.h

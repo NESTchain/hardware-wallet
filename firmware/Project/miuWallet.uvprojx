@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>pino_stm32</TargetName>
+      <TargetName>miuWallet</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>5060061::V5.06 update 1 (build 61)::ARMCC</pCCUsed>
@@ -48,7 +48,7 @@
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
           <OutputDirectory>..\OUTPUT\</OutputDirectory>
-          <OutputName>PINO_STM32</OutputName>
+          <OutputName>miuWallet</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
           <CreateHexFile>1</CreateHexFile>
@@ -386,11 +386,6 @@
               <FilePath>..\USER\system_stm32f10x.c</FilePath>
             </File>
             <File>
-              <FileName>system.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\USER\system.c</FilePath>
-            </File>
-            <File>
               <FileName>delay.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\delay.c</FilePath>
@@ -399,6 +394,11 @@
               <FileName>fm_se.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\USER\fm_se.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart1.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\USER\usart1.c</FilePath>
             </File>
           </Files>
         </Group>

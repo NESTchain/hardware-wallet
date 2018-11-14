@@ -19,7 +19,7 @@
 #define RESET_MOSI GPIO_ResetBits(GPIOA,GPIO_Pin_7)
 #define GET_MISO GPIO_ReadInputDataBit(GPIOA, GPIO_Pin_6)
 
-#define FRAME_SIZE 128
+#define FRAME_SIZE 255+16
 
 unsigned char Frame[FRAME_SIZE]; // Frame Buffer
 
@@ -104,10 +104,12 @@ void fm_se_write(unsigned char *pbuf)
 	
 	spi_send_bytes(*(pbuf+1));
 	lrc ^= *(pbuf+1);
+	len = *(pbuf+1);
+	len = len<<8;
 	spi_send_bytes(*(pbuf+2));
 	lrc ^= *(pbuf+2);
+	len += *(pbuf+2);
 	
-	len = *(pbuf+2);
 	for(i=0;i<len;i++)
 	{
 		spi_send_bytes(*(pbuf+i+3));
@@ -166,7 +168,7 @@ unsigned char limited_wait()
 	unsigned int i = 0;
 	for(i=0;i<2000;i++)
 	{
-		if(fm_se_check_status() == 0) return i;
+		if(fm_se_check_status() == 0) return 1;
 	}
 	
 	return 0;
@@ -234,6 +236,7 @@ void fm_se_get_id(unsigned char* p_device_id)
 }
 
 //export: p_random
+//if succeed return 1
 unsigned char fm_se_random_128bits(unsigned char* p_random)
 {
 	int i = 0;
@@ -326,7 +329,7 @@ unsigned char fm_se_ecc_export_public_key(unsigned char* p_public_key)
 	fm_se_read(Frame);
 	
 	for(i=0; i<64;i++){
-		*(p_public_key+i)=Frame[i+2];
+		*(p_public_key+i)=Frame[i];
 	}
 	
 	return 1;
@@ -380,7 +383,7 @@ unsigned char fm_se_ecdsa_verify(unsigned char* p_signature, unsigned char* p_sh
 {
 	int i = 0;
 	
-	Frame[0]=0x00;
+	Frame[0]=0x02;
 	Frame[1]=0x00;
 	Frame[2]=0x6d;
 	Frame[3]=0x80;
@@ -414,6 +417,7 @@ unsigned char fm_se_ecdsa_verify(unsigned char* p_signature, unsigned char* p_sh
 }
 
 //import: p_private_key
+//if succeed return 1
 //cost approx. 28ms
 unsigned char fm_se_ecc_import_private_key(unsigned char* p_private_key)
 {
@@ -423,9 +427,9 @@ unsigned char fm_se_ecc_import_private_key(unsigned char* p_private_key)
 	Frame[1]=0x00;
 	Frame[2]=0x2b;
 	Frame[3]=0x80;
-	Frame[4]=0x3f;
-	Frame[5]=0x41;
-	Frame[6]=0x01;
+	Frame[4]=0x3a;
+	Frame[5]=0x40;
+	Frame[6]=0x80;
 	Frame[7]=0x26;
 	Frame[8]=0xc2;
 	Frame[9]=0x02;
@@ -449,6 +453,7 @@ unsigned char fm_se_ecc_import_private_key(unsigned char* p_private_key)
 }
 
 //import: p_public_key
+//if succeed return 1
 //cost approx. 18ms
 unsigned char fm_se_ecc_import_public_key(unsigned char* p_public_key)
 {
@@ -458,8 +463,8 @@ unsigned char fm_se_ecc_import_public_key(unsigned char* p_public_key)
 	Frame[1]=0x00;
 	Frame[2]=0x4b;
 	Frame[3]=0x80;
-	Frame[4]=0x3f;
-	Frame[5]=0x41;
+	Frame[4]=0x3a;
+	Frame[5]=0x40;
 	Frame[6]=0x00;
 	Frame[7]=0x46;
 	Frame[8]=0xc0;
@@ -481,5 +486,89 @@ unsigned char fm_se_ecc_import_public_key(unsigned char* p_public_key)
 		return 1;
 	else
 		return 0;
+}
+
+//if succeed return 1
+unsigned char fm_se_sha256(unsigned int str_len, unsigned char* str, unsigned char* p_sha256)
+{
+	/*unsigned int i = 0, temp = 0;
+	unsigned int frame_len = 0;
+	
+	Frame[0]=0x02; //write
+	Frame[1]=0x01; //length high, will be changed
+	Frame[2]=0xff; //length low, will be changed
+	Frame[3]=0x80; //CLA
+	Frame[4]=0xe4; //INS
+	Frame[5]=0x01; //P1, only one frame, will be changed
+	Frame[6]=0x02; //P2, SHA256
+	Frame[7]=0xff; //Lc, length of frame, will be changed
+	
+	while(i < str_len){
+		if(str_len <= 255){
+			Frame[7] = (unsigned char)str_len;
+			frame_len = str_len+6;
+			Frame[1] = (unsigned char)(frame_len>>8);
+			Frame[2] = (unsigned char)frame_len;
+			Frame[5] = 0x01; //only one frame
+			for(i = 0; i < str_len; i++){
+				Frame[i+8] = *(str+i);
+			}
+			Frame[str_len+8] = 0x00; //Le
+		}else if(i == 0){
+			Frame[7] = 255;
+			Frame[1] = 1;
+			Frame[2] = 5;
+			Frame[5] = 0x00; //first frame
+			for(; i < 255; i++){
+				Frame[i+8] = *(str+i);
+			}
+			Frame[263] = 0x00; //Le
+		}else if(str_len - i > 255){
+			Frame[5] = 0x02; //middle frame
+			temp = i+255;
+			for(; i < temp; i++){
+				Frame[(i%255)+8] = *(str+i);
+			}
+			Frame[263] = 0x00; //Le
+		}else if(str_len - i <= 255){
+			Frame[7] = (unsigned char)(str_len-i);
+			frame_len = str_len-i+6;
+			Frame[1] = (unsigned char)(frame_len>>8);
+			Frame[2] = (unsigned char)frame_len;
+			Frame[5] = 0x03; //end frame
+			for(; i < str_len; i++){
+				Frame[(i%255)+8] = *(str+i);
+			}
+			Frame[(str_len%255)+8] = 0x00; //Le
+		}
+	}
+	
+	fm_se_write(Frame);
+	if(limited_wait() == 0) return 0;
+	fm_se_read(Frame);*/
+	
+	unsigned int i = 0;
+	unsigned char temp[64] = "0123456789abcdefghijklmnopqrstuvwxyz";
+	
+	Frame[0]=0x02;
+	Frame[1]=0x00;
+	Frame[2]=0x17;
+	Frame[3]=0x80;
+	Frame[4]=0xe4;
+	Frame[5]=0x01;
+	Frame[6]=0x02;
+	Frame[7]=0x12;
+	Frame[8]=0xc1;
+	Frame[9]=0x10;
+	
+	for(i=0; i<16; i++){
+		Frame[i+10] = temp[i];
+	}
+	
+	fm_se_write(Frame);
+	if(limited_wait() == 0) return 0;
+	fm_se_read(Frame);
+	
+	return 1;
 }
 
